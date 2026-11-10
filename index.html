@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Legendary Rooster</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <main class="game-shell">
+      <canvas id="game" width="960" height="540" aria-label="Chicken shooting planes game"></canvas>
+
+      <section class="hud" aria-live="polite">
+        <div class="brand">LEGENDARY <strong>ROOSTER</strong></div>
+        <div class="stats">
+          <span>SCORE <strong id="score">0</strong></span>
+          <span>BEST <strong id="best">0</strong></span>
+          <span class="lives" id="lives">♥♥♥</span>
+        </div>
+      </section>
+
+      <section class="start-panel" id="startPanel">
+        <div class="wing wing-left">◆</div>
+        <div class="wing wing-right">◆</div>
+        <p class="eyebrow">CẤM BỊ RƠI</p>
+        <h1>LEGENDARY<br /><em>ROOSTER</em></h1>
+        <p class="subtitle">Phòng thủ bầu trời khỏi đội máy bay xâm lược!</p>
+        <button id="startButton">BẮT ĐẦU BAY</button>
+        <div class="controls">
+          <span>← → / A D</span>
+          <span>DI CHUYỂN</span>
+          <span>SPACE</span>
+          <span>BẮN TRỨNG</span>
+        </div>
+      </section>
+
+      <section class="game-over" id="gameOver" hidden>
+        <p class="eyebrow">NHIỆM VỤ KẾT THÚC</p>
+        <h2>GAME OVER</h2>
+        <p>Điểm số: <strong id="finalScore">0</strong></p>
+        <button id="restartButton">CHƠI LẠI</button>
+      </section>
+
+      <div class="touch-controls" aria-label="Điều khiển cảm ứng">
+        <button id="leftButton" aria-label="Đi sang trái">←</button>
+        <button id="shootButton" aria-label="Bắn">●</button>
+        <button id="rightButton" aria-label="Đi sang phải">→</button>
+      </div>
+    </main>
+    <script src="game.js"></script>
+  </body>
+</html>
