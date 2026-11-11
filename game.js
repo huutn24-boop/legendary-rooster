@@ -23,20 +23,13 @@ const bossHud = document.getElementById("bossHud");
 const bossBarFill = document.getElementById("bossBarFill");
 
 // Lobby Elements
-const lobbyGoldEl = document.getElementById("lobbyGold");
-const lobbyRevivesEl = document.getElementById("lobbyRevives");
-const tabCampaignBtn = document.getElementById("tabCampaignBtn");
-const tabHangarBtn = document.getElementById("tabHangarBtn");
+const shopGoldEl = document.getElementById("shopGold");
+const lobbyHomeView = document.getElementById("lobbyHomeView");
+const stageSelectView = document.getElementById("stageSelectView");
 const tabCampaignContent = document.getElementById("tabCampaignContent");
-const tabHangarContent = document.getElementById("tabHangarContent");
 
-const stageCards = [
-  document.getElementById("stageCard1"),
-  document.getElementById("stageCard2"),
-  document.getElementById("stageCard3")
-];
-const lockStage2 = document.getElementById("lockStage2");
-const lockStage3 = document.getElementById("lockStage3");
+const MAX_STAGES = 15;
+let stageCards = [];
 
 // Shop & Upgrade Elements
 const itemReviveCountEl = document.getElementById("itemReviveCount");
@@ -50,6 +43,8 @@ const upgradeEngineBtn = document.getElementById("upgradeEngineBtn");
 
 // Modals
 const startButton = document.getElementById("startButton");
+const deploySelectedButton = document.getElementById("deploySelectedButton");
+const backToLobbyButton = document.getElementById("backToLobbyButton");
 const resumeButton = document.getElementById("resumeButton");
 const lobbyButton = document.getElementById("lobbyButton");
 const nextStageButton = document.getElementById("nextStageButton");
@@ -74,10 +69,82 @@ let engineLevel = Number(localStorage.getItem("rooster_engine_level"));
 if (isNaN(engineLevel) || engineLevel < 0 || engineLevel > 3) engineLevel = 0;
 
 let unlockedStage = Number(localStorage.getItem("rooster_unlocked_stage"));
-if (isNaN(unlockedStage) || unlockedStage < 1 || unlockedStage > 3) unlockedStage = 1;
+if (isNaN(unlockedStage) || unlockedStage < 1 || unlockedStage > MAX_STAGES) unlockedStage = 1;
 
 let selectedStage = 1;
 let bestScore = Number(localStorage.getItem("chickenStrikeBest") || 0);
+
+function getStarTier(stageId) {
+  if (stageId <= 5) return 1;
+  if (stageId <= 10) return 2;
+  return 3;
+}
+
+function getBossMeta(stageId) {
+  const bossCycle = Math.floor((stageId - 1) / 5) + 1;
+  const bossList = [
+    { name: "BOSS STORM WING", accent: "#ff7a18", glow: "#ffb84d", kind: "storm" },
+    { name: "BOSS NIGHT FANG", accent: "#7c3aed", glow: "#c084fc", kind: "fang" },
+    { name: "BOSS VOID TITAN", accent: "#ff4dd8", glow: "#ff99ec", kind: "void" }
+  ];
+  return bossList[Math.min(bossCycle - 1, bossList.length - 1)];
+}
+
+function buildStages() {
+  const stages = {};
+  for (let id = 1; id <= MAX_STAGES; id++) {
+    const starTier = getStarTier(id);
+    const isBossStage = id % 5 === 0;
+    const bossMeta = isBossStage ? getBossMeta(id) : null;
+    const baseMode = {
+      1: { tag: "MÀN 1: BÌNH MINH", name: "Căn Cứ Ngoại Ô", desc: "Bầu trời bình minh. Đội trinh sát cơ địch tiến công.", skyTop: "#08142e", skyMid: "#183664", skyLow: "#32629b", skyHorizon: "#dfa46e", sunColor: "#ffeec2" },
+      2: { tag: "MÀN 2: HỒNG KHÔNG", name: "Hẻm Núi Hoàng Hôn", desc: "Đội cường kích lao vào khoảng không rực lửa.", skyTop: "#170420", skyMid: "#3d0c34", skyLow: "#8f1d35", skyHorizon: "#f39c12", sunColor: "#ff7675" },
+      3: { tag: "MÀN 3: ĐÊM BÃO", name: "Pháo Đài Bão Đêm", desc: "Đêm giông bão, pháo đài địch rền vang khắp bầu trời.", skyTop: "#02040a", skyMid: "#0d1024", skyLow: "#231138", skyHorizon: "#4b134f", sunColor: "#e84118" },
+      4: { tag: "MÀN 4: LŨ LỤT", name: "Cửa Hàng Gió Cực", desc: "Dải mây dày khiến địch tăng tốc và tấn công từ mọi hướng.", skyTop: "#071524", skyMid: "#133e56", skyLow: "#2a7ea7", skyHorizon: "#b8d8ff", sunColor: "#f5d76e" },
+      5: { tag: "MÀN 5: BOSS STORM", name: "BOSS STORM WING", desc: "BOSS đầu tiên: Storm Wing lao nhanh như cơn bão.", skyTop: "#0a0f2a", skyMid: "#1d2c5d", skyLow: "#2e5c7c", skyHorizon: "#f7a35b", sunColor: "#ffd166" },
+      6: { tag: "MÀN 6: THÁM SÁT", name: "Đai Trời Sương Mù", desc: "Không trung mờ sương, máy bay địch tiến công theo đội hình.", skyTop: "#0d1225", skyMid: "#1e2f4c", skyLow: "#3d5578", skyHorizon: "#9cd3ff", sunColor: "#e0f7ff" },
+      7: { tag: "MÀN 7: BẮT DÒ", name: "Vùng Tận Cùng", desc: "Tàu chiến đối phương luôn áp sát người chơi.", skyTop: "#0b1628", skyMid: "#1f3c4b", skyLow: "#345a66", skyHorizon: "#97d9b7", sunColor: "#fdf4b5" },
+      8: { tag: "MÀN 8: LẨN MẶT", name: "Lãnh Địa Gió Cắt", desc: "Địch xâm nhập từ phía sau cùng một lúc.", skyTop: "#120c22", skyMid: "#2d1b42", skyLow: "#5e3564", skyHorizon: "#f2a65a", sunColor: "#ffe084" },
+      9: { tag: "MÀN 9: HÒA THUẬN", name: "Vùng Đất Đen", desc: "Không gian tối làm tăng độ khốc của trận chiến.", skyTop: "#05070d", skyMid: "#101b34", skyLow: "#282a5d", skyHorizon: "#6b4ec1", sunColor: "#fff1a8" },
+      10: { tag: "MÀN 10: BOSS NIGHT", name: "BOSS NIGHT FANG", desc: "BOSS thứ hai: Night Fang cắn gãy mọi hàng phòng ngự.", skyTop: "#05070f", skyMid: "#111827", skyLow: "#3b2f5a", skyHorizon: "#ff6b8a", sunColor: "#f8d66d" },
+      11: { tag: "MÀN 11: XÉ BỤI", name: "Núi Đá Tia Sét", desc: "Hệ thống pháo và máy bay tấn công theo từng đợt gió lạnh.", skyTop: "#0a1220", skyMid: "#12314b", skyLow: "#1a4d7c", skyHorizon: "#75d0ff", sunColor: "#fff0a5" },
+      12: { tag: "MÀN 12: THẢI LỰA", name: "Mỏm Đá Kết Hợp", desc: "Trận chiến cực hạn, máy bay nặng và đạn bắn dày hơn.", skyTop: "#0f1a2c", skyMid: "#1d2f50", skyLow: "#254c6f", skyHorizon: "#9ae5e9", sunColor: "#ffe7a3" },
+      13: { tag: "MÀN 13: THIÊN TAI", name: "Đảo Băng Tàng Hình", desc: "Địch nhảy ra từ màn sương, tấn công liên tục ở nhiều hướng.", skyTop: "#0d1725", skyMid: "#1a3c4d", skyLow: "#3a728f", skyHorizon: "#d3f3ff", sunColor: "#fff0bf" },
+      14: { tag: "MÀN 14: LỬA ĐEN", name: "Vùng Băng Sỏi Rừng", desc: "Nhiều máy bay nặng, đánh bền và bắn quét rất nguy hiểm.", skyTop: "#130d1c", skyMid: "#2d1c36", skyLow: "#4e2850", skyHorizon: "#ffb36b", sunColor: "#f7c948" },
+      15: { tag: "MÀN 15: BOSS VOID", name: "BOSS VOID TITAN", desc: "BOSS cuối cùng: Void Titan khởi động toàn bộ hệ thống chiến đấu.", skyTop: "#090b1a", skyMid: "#16182d", skyLow: "#2a1b51", skyHorizon: "#ff4df1", sunColor: "#f7b267" }
+    };
+
+    const mode = baseMode[(id - 1) % 5 + 1] || baseMode[1];
+    stages[id] = {
+      id,
+      starTier,
+      stars: starTier,
+      targetKills: isBossStage ? 12 : 10 + id,
+      rewardCoins: 50 + id * 12,
+      hasBoss: isBossStage,
+      bossName: isBossStage ? bossMeta.name : null,
+      bossKind: isBossStage ? bossMeta.kind : null,
+      accent: isBossStage ? bossMeta.accent : "#dfeaf5",
+      glow: isBossStage ? bossMeta.glow : "#7dd3fc",
+      name: isBossStage ? bossMeta.name : mode.name,
+      desc: mode.desc,
+      tag: isBossStage ? `${mode.tag} / ${bossMeta.name}` : mode.tag,
+      skyTop: mode.skyTop,
+      skyMid: mode.skyMid,
+      skyLow: mode.skyLow,
+      skyHorizon: mode.skyHorizon,
+      sunColor: mode.sunColor,
+      difficulty: isBossStage ? "BOSS" : ["DỄ", "VỪA", "KHÓ"][Math.min(starTier - 1, 2)]
+    };
+  }
+  return stages;
+}
+
+const STAGES = buildStages();
+function getStageStarsText(stageId) {
+  const stars = getStarTier(stageId);
+  return "★".repeat(stars) + "☆".repeat(3 - stars);
+}
 
 function saveUserData() {
   localStorage.setItem("rooster_gold", String(userGold));
@@ -135,49 +202,6 @@ let shockwaves = [];
 let clouds = [];
 let windStreaks = [];
 
-// ==================== STAGE DEFINITIONS ====================
-const STAGES = {
-  1: {
-    id: 1,
-    name: "MÀN 1: BÌNH MINH NGOẠI Ô",
-    tag: "MÀN 1: BÌNH MINH",
-    targetKills: 15,
-    rewardCoins: 50,
-    skyTop: "#08142e",
-    skyMid: "#183664",
-    skyLow: "#32629b",
-    skyHorizon: "#dfa46e",
-    sunColor: "#ffeec2",
-    hasBoss: false
-  },
-  2: {
-    id: 2,
-    name: "MÀN 2: HẺM NÚI HOÀNG HÔN",
-    tag: "MÀN 2: HOÀNG HÔN",
-    targetKills: 25,
-    rewardCoins: 80,
-    skyTop: "#170420",
-    skyMid: "#3d0c34",
-    skyLow: "#8f1d35",
-    skyHorizon: "#f39c12",
-    sunColor: "#ff7675",
-    hasBoss: false
-  },
-  3: {
-    id: 3,
-    name: "MÀN 3: PHÁO ĐÀI BÃO ĐÊM",
-    tag: "MÀN 3: TRÙM TITAN",
-    targetKills: 15, // Plane kills before Boss spawns
-    rewardCoins: 150,
-    skyTop: "#02040a",
-    skyMid: "#0d1024",
-    skyLow: "#231138",
-    skyHorizon: "#4b134f",
-    sunColor: "#e84118",
-    hasBoss: true
-  }
-};
-
 // ==================== INITIALIZATION & LOBBY UI ====================
 function initClouds() {
   clouds = [];
@@ -226,8 +250,7 @@ function initClouds() {
 initClouds();
 
 function updateLobbyUI() {
-  lobbyGoldEl.textContent = userGold;
-  lobbyRevivesEl.textContent = userRevives;
+  shopGoldEl.textContent = userGold;
   coinCountEl.textContent = userGold;
   reviveCountEl.textContent = userRevives;
   itemReviveCountEl.textContent = userRevives;
@@ -284,26 +307,60 @@ function updateLobbyUI() {
   }
 
   // Stage unlock status
-  stageCards.forEach((card, idx) => {
-    const stageNum = idx + 1;
+  stageCards.forEach((card) => {
+    const stageNum = Number(card.dataset.stage);
     card.classList.toggle("selected", selectedStage === stageNum);
     const isLocked = stageNum > unlockedStage;
     card.classList.toggle("locked", isLocked);
-    if (stageNum === 2) lockStage2.hidden = !isLocked;
-    if (stageNum === 3) lockStage3.hidden = !isLocked;
+    const starTextEl = card.querySelector(".stage-stars");
+    if (starTextEl) starTextEl.textContent = getStageStarsText(stageNum);
+    const unlockEl = card.querySelector(".lock-overlay");
+    if (unlockEl) unlockEl.hidden = !isLocked;
+  });
+  deploySelectedButton.textContent = `XUẤT KÍCH MÀN ${selectedStage}`;
+}
+
+function renderStageCards() {
+  const grid = document.querySelector(".stage-grid");
+  if (!grid) return;
+
+  grid.innerHTML = "";
+  for (let id = 1; id <= MAX_STAGES; id++) {
+    const stage = STAGES[id];
+    const card = document.createElement("div");
+    card.className = "stage-card";
+    card.dataset.stage = String(id);
+    card.innerHTML = `
+      <div class="stage-thumb ${id % 5 === 0 ? "stage-3-thumb" : id % 2 === 0 ? "stage-2-thumb" : "stage-1-thumb"}">
+        <span class="stage-badge">MÀN ${id}</span>
+        <span class="lock-overlay" hidden>🔒</span>
+      </div>
+      <div class="stage-info">
+        <h3>${stage.name}</h3>
+        <p class="stage-desc">${stage.desc}</p>
+        <div class="stage-meta">
+          <span>Mục tiêu: <strong>${stage.hasBoss ? "DIỆT BOSS" : `${stage.targetKills} Máy bay`}</strong></span>
+          <span class="tag-easy">${stage.hasBoss ? "BOSS" : `ĐỘ KHÓ: ${stage.difficulty}`}</span>
+        </div>
+        <div class="stage-stars">${getStageStarsText(id)}</div>
+      </div>
+    `;
+    grid.appendChild(card);
+  }
+
+  stageCards = Array.from(document.querySelectorAll(".stage-card"));
+  stageCards.forEach((card) => {
+    card.addEventListener("click", () => {
+      const stageNum = Number(card.dataset.stage);
+      if (stageNum <= unlockedStage) {
+        selectedStage = stageNum;
+        updateLobbyUI();
+      }
+    });
   });
 }
 
-// Stage selection handler
-stageCards.forEach((card, idx) => {
-  card.addEventListener("click", () => {
-    const stageNum = idx + 1;
-    if (stageNum <= unlockedStage) {
-      selectedStage = stageNum;
-      updateLobbyUI();
-    }
-  });
-});
+renderStageCards();
 
 // Shop purchases
 buyReviveBtn.addEventListener("click", () => {
@@ -342,30 +399,24 @@ upgradeEngineBtn.addEventListener("click", () => {
   }
 });
 
-// Tab navigation
-tabCampaignBtn.addEventListener("click", () => {
-  tabCampaignBtn.classList.add("active");
-  tabHangarBtn.classList.remove("active");
-  tabCampaignContent.hidden = false;
-  tabHangarContent.hidden = true;
-});
-
-tabHangarBtn.addEventListener("click", () => {
-  tabHangarBtn.classList.add("active");
-  tabCampaignBtn.classList.remove("active");
-  tabCampaignContent.hidden = true;
-  tabHangarContent.hidden = false;
-});
-
 // Pause / Resume / Lobby
 function showLobby() {
   running = false;
   paused = false;
   lobbyPanel.style.display = "flex";
+  lobbyHomeView.hidden = false;
+  stageSelectView.hidden = true;
   pausePanel.hidden = true;
   victoryPanel.hidden = true;
   gameOverPanel.hidden = true;
   bossHud.hidden = true;
+  updateLobbyUI();
+}
+
+function showStageSelect() {
+  lobbyHomeView.hidden = true;
+  stageSelectView.hidden = false;
+  tabCampaignContent.hidden = false;
   updateLobbyUI();
 }
 
@@ -384,9 +435,15 @@ resumeButton.addEventListener("click", togglePause);
 lobbyButton.addEventListener("click", showLobby);
 victoryLobbyButton.addEventListener("click", showLobby);
 gameOverLobbyButton.addEventListener("click", showLobby);
+startButton.addEventListener("click", showStageSelect);
+backToLobbyButton.addEventListener("click", () => {
+  lobbyHomeView.hidden = false;
+  stageSelectView.hidden = true;
+});
+deploySelectedButton.addEventListener("click", startMission);
 
 nextStageButton.addEventListener("click", () => {
-  if (selectedStage < 3) selectedStage++;
+  if (selectedStage < MAX_STAGES) selectedStage++;
   startMission();
 });
 
@@ -439,7 +496,6 @@ function startMission() {
   requestAnimationFrame(loop);
 }
 
-startButton.addEventListener("click", startMission);
 restartButton.addEventListener("click", startMission);
 
 // ==================== WEAPONS & PROJECTILES ====================
@@ -526,9 +582,9 @@ function shoot() {
 function spawnPlane() {
   const currentStage = STAGES[selectedStage];
 
-  // In Stage 3, after 15 plane kills, spawn Titan Boss
+  // Boss stage spawn after target kills
   if (currentStage.hasBoss && stageKills >= currentStage.targetKills && !boss) {
-    spawnTitanBoss();
+    spawnBossForStage();
     return;
   }
 
@@ -554,23 +610,28 @@ function spawnPlane() {
   });
 }
 
-function spawnTitanBoss() {
+function spawnBossForStage() {
+  const stage = STAGES[selectedStage];
+  const bossMeta = getBossMeta(selectedStage);
+  const hpBase = 70 + (selectedStage - 1) * 12;
   boss = {
     x: 480,
     y: -120,
     targetY: 130,
-    vx: 85,
+    vx: 85 + selectedStage * 4,
     w: 220,
-    h: 100,
-    maxHp: 85,
-    hp: 85,
-    shootTimer: 1.2,
-    missileTimer: 3.5,
-    strobeTimer: 0
+    h: 110,
+    maxHp: hpBase,
+    hp: hpBase,
+    shootTimer: 1.1,
+    missileTimer: 3.0,
+    strobeTimer: 0,
+    kind: stage.bossKind || bossMeta.kind,
+    name: stage.bossName || bossMeta.name
   };
   bossHud.hidden = false;
   bossBarFill.style.width = "100%";
-  bannerText = "⚠ CẢNH BÁO: SIÊU PHÁO ĐÀI TITAN XUẤT HIỆN! ⚠";
+  bannerText = `⚠ CẢNH BÁO: ${boss.name} XUẤT HIỆN! ⚠`;
   bannerTimer = 3.5;
   shake = 10;
 }
@@ -682,7 +743,7 @@ function completeStage() {
   userGold += reward;
 
   // Unlock next stage
-  if (selectedStage === unlockedStage && unlockedStage < 3) {
+  if (selectedStage === unlockedStage && unlockedStage < MAX_STAGES) {
     unlockedStage++;
   }
   saveUserData();
@@ -690,7 +751,7 @@ function completeStage() {
   document.getElementById("clearRewardCoins").textContent = `+${reward} 🪙`;
   document.getElementById("victoryScore").textContent = score;
   victoryPanel.hidden = false;
-  nextStageButton.hidden = selectedStage >= 3;
+  nextStageButton.hidden = selectedStage >= MAX_STAGES;
 }
 
 // Player Defeat / Revive Handler
@@ -878,7 +939,7 @@ function update(dt) {
   });
   planes = planes.filter(p => p.x > -120 && p.x < 1080);
 
-  // Update Titan Boss
+  // Update Boss
   if (boss) {
     if (boss.y < boss.targetY) boss.y += 60 * dt;
 
@@ -888,41 +949,38 @@ function update(dt) {
 
     boss.strobeTimer = (boss.strobeTimer + dt) % 0.8;
 
-    // Boss main guns
     boss.shootTimer -= dt;
     if (boss.shootTimer <= 0) {
-      boss.shootTimer = 1.1;
-      [-70, -25, 25, 70].forEach(gunOffset => {
+      boss.shootTimer = Math.max(0.65, 1.1 - selectedStage * 0.02);
+      const guns = [-70, -25, 25, 70];
+      guns.forEach(gunOffset => {
         enemyBullets.push({
           x: boss.x + gunOffset,
           y: boss.y + 40,
-          vx: (gunOffset / 70) * 80,
-          vy: 240,
+          vx: (gunOffset / 70) * 90,
+          vy: 240 + selectedStage * 6,
           r: 6.5
         });
       });
     }
 
-    // Boss missiles
     boss.missileTimer -= dt;
     if (boss.missileTimer <= 0) {
-      boss.missileTimer = 3.2;
+      boss.missileTimer = Math.max(2.2, 3.2 - selectedStage * 0.05);
       const angle = Math.atan2(player.y - boss.y, player.x - boss.x);
       enemyBullets.push({
         x: boss.x,
         y: boss.y + 30,
-        vx: Math.cos(angle) * 310,
-        vy: Math.sin(angle) * 310,
+        vx: Math.cos(angle) * (310 + selectedStage * 8),
+        vy: Math.sin(angle) * (310 + selectedStage * 8),
         r: 9
       });
       createExplosion(boss.x, boss.y + 30, 0.4, "#ff4757");
     }
 
-    // Update Boss HP Bar
     const hpRatio = Math.max(0, boss.hp / boss.maxHp);
     bossBarFill.style.width = `${hpRatio * 100}%`;
 
-    // Boss damaged smoke plumes
     if (boss.hp < boss.maxHp * 0.6) {
       particles.push({
         x: boss.x + (Math.random() - 0.5) * 80,
@@ -1161,7 +1219,7 @@ function drawBackground() {
   const sunX = 740;
   const sunY = 95;
 
-  if (selectedStage === 3) {
+  if (selectedStage % 5 === 0) {
     // Blood Moon with dark red glow & eerie corona
     const moonGlow = ctx.createRadialGradient(sunX, sunY, 15, sunX, sunY, 160);
     moonGlow.addColorStop(0, "rgba(235, 77, 75, 0.65)");
@@ -1214,7 +1272,7 @@ function drawBackground() {
   });
 
   // 4. Parallax Mountain Ridges
-  ctx.fillStyle = selectedStage === 3 ? "rgba(10, 8, 22, 0.85)" : "rgba(30, 48, 76, 0.45)";
+  ctx.fillStyle = selectedStage % 5 === 0 ? "rgba(10, 8, 22, 0.85)" : "rgba(30, 48, 76, 0.45)";
   ctx.beginPath();
   ctx.moveTo(0, 540);
   ctx.lineTo(0, 420); ctx.lineTo(90, 370); ctx.lineTo(190, 415);
@@ -1224,7 +1282,7 @@ function drawBackground() {
   ctx.closePath();
   ctx.fill();
 
-  ctx.fillStyle = selectedStage === 3 ? "rgba(6, 4, 14, 0.95)" : "rgba(16, 28, 48, 0.8)";
+  ctx.fillStyle = selectedStage % 5 === 0 ? "rgba(6, 4, 14, 0.95)" : "rgba(16, 28, 48, 0.8)";
   ctx.beginPath();
   ctx.moveTo(0, 540);
   ctx.lineTo(0, 460); ctx.lineTo(130, 410); ctx.lineTo(260, 455);
@@ -1501,66 +1559,134 @@ function drawPlane(p) {
   ctx.restore();
 }
 
-// Draw Titan Boss
+// Draw aircraft-style boss variants facing the player.
 function drawBoss(b) {
+  const palette = {
+    storm: {
+      hull: "#b94b27", wing: "#e58a38", accent: "#ffd34e", canopy: "#72e2ef", glow: "#ff7a18",
+      wingPoints: [[22, -9], [66, -33], [130, -44], [114, 7], [79, 24], [27, 21]]
+    },
+    fang: {
+      hull: "#34346c", wing: "#6257a7", accent: "#ff496f", canopy: "#a9f1ff", glow: "#9b5cff",
+      wingPoints: [[20, -12], [57, -48], [132, -59], [105, -4], [62, 29], [25, 23]]
+    },
+    void: {
+      hull: "#633779", wing: "#a04f9d", accent: "#50f3de", canopy: "#f7b7ff", glow: "#ed4fd1",
+      wingPoints: [[23, -8], [72, -35], [119, -33], [108, 0], [136, 15], [72, 30], [27, 21]]
+    }
+  };
+  const p = palette[b.kind] || palette.storm;
+  const drawPolygon = (points, fill, stroke = "#20263d", width = 3) => {
+    ctx.beginPath();
+    points.forEach(([x, y], index) => {
+      if (index === 0) ctx.moveTo(x, y);
+      else ctx.lineTo(x, y);
+    });
+    ctx.closePath();
+    ctx.fillStyle = fill;
+    ctx.strokeStyle = stroke;
+    ctx.lineWidth = width;
+    ctx.lineJoin = "round";
+    ctx.fill();
+    ctx.stroke();
+  };
+
   ctx.save();
   ctx.translate(b.x, b.y);
+  ctx.rotate(Math.sin(gameTime * 1.5) * 0.025);
 
-  // 4 Jet Thrusters
-  ctx.save();
-  ctx.globalCompositeOperation = "lighter";
-  [-75, -35, 35, 75].forEach(tx => {
-    ctx.fillStyle = "rgba(255, 80, 20, 0.9)";
+  const glow = ctx.createRadialGradient(0, 0, 20, 0, 0, 170);
+  glow.addColorStop(0, p.glow);
+  glow.addColorStop(0.48, "rgba(98, 102, 255, 0.32)");
+  glow.addColorStop(1, "rgba(0,0,0,0)");
+  ctx.globalAlpha = 0.75;
+  ctx.fillStyle = glow;
+  ctx.beginPath();
+  ctx.ellipse(0, 0, 155, 110, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.globalAlpha = 1;
+
+  const enginePulse = 0.72 + Math.sin(gameTime * 9) * 0.18;
+  [-36, 36].forEach(x => {
+    ctx.fillStyle = p.glow;
+    ctx.globalAlpha = enginePulse;
     ctx.beginPath();
-    ctx.moveTo(tx - 8, -45);
-    ctx.lineTo(tx, -80);
-    ctx.lineTo(tx + 8, -45);
-    ctx.closePath();
+    ctx.ellipse(x, -43, 12, 19, 0, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.globalAlpha = 1;
+    ctx.fillStyle = "#172236";
+    ctx.beginPath();
+    ctx.ellipse(x, -39, 8, 13, 0, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = p.accent;
+    ctx.beginPath();
+    ctx.ellipse(x, -45, 4, 8, 0, 0, Math.PI * 2);
     ctx.fill();
   });
-  ctx.restore();
 
-  // Giant Heavy Armor Wings
-  const wingGrad = ctx.createLinearGradient(0, -30, 0, 50);
-  wingGrad.addColorStop(0, "#2c3e50");
-  wingGrad.addColorStop(0.5, "#4a5568");
-  wingGrad.addColorStop(1, "#1a202c");
-  ctx.fillStyle = wingGrad;
+  for (const side of [-1, 1]) {
+    ctx.save();
+    ctx.scale(side, 1);
+    drawPolygon(p.wingPoints, p.wing);
+    drawPolygon([[24, -23], [69, -40], [111, -43], [78, -31], [38, -9]], p.accent, "rgba(20, 28, 48, 0.75)", 1.5);
+    drawPolygon([[38, 17], [81, 12], [103, 5], [82, 22], [45, 27]], p.hull, "#20263d", 2);
+
+    ctx.fillStyle = p.hull;
+    ctx.strokeStyle = "#20263d";
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    ctx.roundRect(68, -1, 19, 34, 7);
+    ctx.fill();
+    ctx.stroke();
+    ctx.fillStyle = p.accent;
+    ctx.fillRect(74, 22, 7, 17);
+
+    ctx.restore();
+  }
+
+  drawPolygon([[-13, -47], [-51, -66], [-42, -39], [-17, -29]], p.hull);
+  drawPolygon([[13, -47], [51, -66], [42, -39], [17, -29]], p.hull);
+  drawPolygon([[0, 72], [-17, 43], [-22, 6], [-17, -38], [-9, -61], [0, -73], [9, -61], [17, -38], [22, 6], [17, 43]], p.hull, "#20263d", 4);
+  drawPolygon([[-12, 30], [-5, 53], [0, 65], [5, 53], [12, 30], [0, 39]], p.accent, "rgba(20, 28, 48, 0.8)", 2);
+
+  ctx.fillStyle = p.wing;
+  ctx.strokeStyle = "#20263d";
+  ctx.lineWidth = 3;
   ctx.beginPath();
-  ctx.moveTo(0, -45);
-  ctx.lineTo(-110, 10);
-  ctx.lineTo(-100, 35);
-  ctx.lineTo(0, 50);
-  ctx.lineTo(100, 35);
-  ctx.lineTo(110, 10);
-  ctx.closePath();
+  ctx.ellipse(0, -15, 12, 24, 0, 0, Math.PI * 2);
   ctx.fill();
-
-  // Central Command Citadel
-  const citGrad = ctx.createLinearGradient(-30, 0, 30, 0);
-  citGrad.addColorStop(0, "#1f2937");
-  citGrad.addColorStop(0.5, "#4b5563");
-  citGrad.addColorStop(1, "#111827");
-  ctx.fillStyle = citGrad;
+  ctx.stroke();
+  ctx.fillStyle = p.canopy;
+  ctx.globalAlpha = 0.9;
   ctx.beginPath();
-  ctx.roundRect(-40, -30, 80, 75, 10);
+  ctx.ellipse(0, -18, 7, 16, 0, 0, Math.PI * 2);
   ctx.fill();
-
-  // Red Glowing Eye / Core
-  ctx.fillStyle = "#ff4757";
-  ctx.shadowColor = "#ff4757";
-  ctx.shadowBlur = 15;
+  ctx.globalAlpha = 1;
+  ctx.strokeStyle = "rgba(255,255,255,0.75)";
+  ctx.lineWidth = 2;
   ctx.beginPath();
-  ctx.arc(0, 5, 14, 0, Math.PI * 2);
-  ctx.fill();
-  ctx.shadowBlur = 0;
+  ctx.moveTo(-3, -28);
+  ctx.lineTo(2, -17);
+  ctx.stroke();
 
-  // Heavy Cannons
-  ctx.fillStyle = "#0f172a";
-  [-70, -25, 25, 70].forEach(cx => {
-    ctx.fillRect(cx - 5, 20, 10, 32);
+  [-1, 1].forEach(side => {
+    ctx.fillStyle = "#182238";
+    ctx.beginPath();
+    ctx.roundRect(side * 67 - 4, 7, 8, 25, 3);
+    ctx.fill();
+    ctx.fillStyle = p.accent;
+    ctx.fillRect(side * 67 - 2, 25, 4, 10);
   });
 
+  ctx.strokeStyle = p.accent;
+  ctx.globalAlpha = 0.9;
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.moveTo(-8, 4);
+  ctx.lineTo(0, 14);
+  ctx.lineTo(8, 4);
+  ctx.stroke();
+  ctx.globalAlpha = 1;
   ctx.restore();
 }
 
@@ -1796,7 +1922,7 @@ window.addEventListener("keydown", e => {
   keys[e.code] = true;
   if (["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown", "Space"].includes(e.code)) e.preventDefault();
   if (e.code === "KeyP" || e.code === "Escape") togglePause();
-  if (!running && e.code === "Space" && lobbyPanel.style.display !== "none") startMission();
+  if (!running && e.code === "Space" && lobbyPanel.style.display !== "none" && !stageSelectView.hidden) startMission();
 });
 
 window.addEventListener("keyup", e => { keys[e.code] = false; });

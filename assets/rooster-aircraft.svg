@@ -1,0 +1,48 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 600" role="img" aria-labelledby="title desc">
+  <title id="title">Legendary Rooster aircraft</title>
+  <desc id="desc">A golden fighter plane crosses a dramatic sunrise sky above distant mountains.</desc>
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0.85" y2="1">
+      <stop offset="0" stop-color="#122c48"/>
+      <stop offset="0.53" stop-color="#287a9a"/>
+      <stop offset="1" stop-color="#f3a34f"/>
+    </linearGradient>
+    <linearGradient id="sunset" x1="0" y1="0" x2="0" y2="1">
+      <stop stop-color="#fff5bd"/>
+      <stop offset="1" stop-color="#ffb34e"/>
+    </linearGradient>
+    <linearGradient id="plane" x1="0" y1="0" x2="1" y2="1">
+      <stop stop-color="#fff4c2"/>
+      <stop offset="0.5" stop-color="#f5bb48"/>
+      <stop offset="1" stop-color="#cf672e"/>
+    </linearGradient>
+    <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="15"/>
+    </filter>
+  </defs>
+  <rect width="960" height="600" fill="url(#sky)"/>
+  <circle cx="710" cy="285" r="100" fill="#ffd77b" opacity=".55" filter="url(#glow)"/>
+  <circle cx="710" cy="285" r="66" fill="url(#sunset)"/>
+  <path d="M0 335 Q132 295 255 337 T515 326 T780 336 T1050 320 V600 H0Z" fill="#527e85" opacity=".56"/>
+  <path d="M0 422 150 328 266 422 414 300 560 430 710 340 855 434 960 365 V600 H0Z" fill="#263c51"/>
+  <path d="m414 300 45 39-45-14-34 25zM710 340l40 37-41-17-31 22z" fill="#d4e4dc" opacity=".8"/>
+  <path d="M0 476q190-43 358 0t330-1q145-39 272-3v128H0z" fill="#142a3c"/>
+  <g fill="#f7cb75" opacity=".5">
+    <path d="M85 155h106l25 9H76zM295 210h72l17 7h-96zM785 139h96l22 8H773z"/>
+  </g>
+  <g transform="translate(0 10) rotate(-8 475 295)">
+    <path d="M196 304 374 268 481 217 517 227 476 276 642 270 785 300 649 322 476 323 535 381 507 391 375 337 204 329Z" fill="#122a3d" opacity=".36" transform="translate(0 13)"/>
+    <path d="M194 286 374 253 481 204 517 213 477 262 650 256 785 286 650 309 476 309 535 365 507 375 375 322 203 312Z" fill="url(#plane)" stroke="#fff0b0" stroke-width="4" stroke-linejoin="round"/>
+    <path d="m374 253 83 11-68 32-186-10zM476 309l116 3-81 53-36-5z" fill="#e58b39" stroke="#ffe2a0" stroke-width="3" stroke-linejoin="round"/>
+    <path d="m475 262 22-38 15-3 9 10-18 33z" fill="#77d5e0" stroke="#173c50" stroke-width="5"/>
+    <path d="m525 275 72-3-33 10-61 1z" fill="#fff7d0" opacity=".82"/>
+    <path d="m286 274 82-15 58 13-65 18z" fill="#ff5a47"/>
+    <path d="m303 298 69-2 23 8-89 2z" fill="#173c50" opacity=".85"/>
+    <path d="M330 292c18-33 62-34 80-8-16 31-59 35-80 8z" fill="#fff1bd" stroke="#173c50" stroke-width="4"/>
+    <path d="M344 277q8-27 21-4 12-27 22-4 12-20 21 3l-5 12q-28-15-58 6z" fill="#e84d42"/>
+    <circle cx="384" cy="286" r="4" fill="#172b3b"/>
+    <path d="m402 292 21 6-20 7z" fill="#f39b32"/>
+    <path d="M205 296 112 287 203 312Z" fill="#e47a36" stroke="#ffe2a0" stroke-width="3"/>
+  </g>
+  <path d="M0 540q235-35 472 2t488-3v61H0z" fill="#0c1a2a" opacity=".8"/>
+</svg>

@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Legendary Rooster - Không Chiến Huyền Thoại</title>
-    <link rel="stylesheet" href="style.css" />
+    <link rel="stylesheet" href="style.css?v=2" />
   </head>
   <body>
     <main class="game-shell">
@@ -26,7 +26,7 @@
 
           <!-- BOSS HEALTH BAR -->
           <div class="boss-hud" id="bossHud" hidden>
-            <div class="boss-label">⚠ SIÊU PHÁO ĐÀI TITAN BOSS ⚠</div>
+            <div class="boss-label" id="bossLabel">⚠ SIÊU PHÁO ĐÀI TITAN BOSS ⚠</div>
             <div class="boss-bar-track">
               <div class="boss-bar-fill" id="bossBarFill"></div>
             </div>
@@ -49,126 +49,95 @@
             <p class="eyebrow">CĂN CỨ CHỈ HUY KHÔNG CHIẾN</p>
             <h1>LEGENDARY <em>ROOSTER</em></h1>
           </div>
-          <div class="lobby-wallet">
-            <span class="wallet-chip">🪙 Vàng: <strong id="lobbyGold">0</strong></span>
-            <span class="wallet-chip">🪙+ Xu Hồi Sinh: <strong id="lobbyRevives">1</strong></span>
+        </div>
+
+        <div class="lobby-home-view" id="lobbyHomeView">
+          <div class="lobby-home-main">
+            <figure class="lobby-art">
+              <img src="assets/rooster-aircraft.svg" alt="Máy bay chiến đấu của phi công gà trống trên bầu trời bình minh" />
+              <figcaption>PHI ĐỘI GÀ TRỐNG · SẴN SÀNG CẤT CÁNH</figcaption>
+            </figure>
+
+            <section class="lobby-store" aria-labelledby="storeTitle">
+              <div class="store-heading">
+                <div>
+                  <p class="eyebrow">TRANG BỊ PHI ĐỘI</p>
+                  <h2 id="storeTitle">CỬA HÀNG</h2>
+                </div>
+                <span class="store-currency">🪙 <strong id="shopGold">0</strong></span>
+              </div>
+              <div class="tab-content shop-content" id="tabHangarContent">
+                <div class="upgrade-grid">
+                  <div class="upgrade-card">
+                    <div class="item-icon">🪙+</div>
+                    <div class="item-details">
+                      <h4>Xu Hồi Sinh Tức Thì</h4>
+                      <p>Tự động hồi sinh tại chỗ khi hết mạng, kèm 3 giây khiên bất tử!</p>
+                      <div class="item-status">Đang có: <strong id="itemReviveCount">1</strong> (Tối đa 3)</div>
+                    </div>
+                    <button class="buy-btn" id="buyReviveBtn">MUA (80 🪙)</button>
+                  </div>
+                  <div class="upgrade-card">
+                    <div class="item-icon">⚡</div>
+                    <div class="item-details">
+                      <h4>Nâng Cấp Hỏa Lực</h4>
+                      <p id="weaponUpgradeDesc">Đạn Trứng Đôi → Đạn Chùm 3 Hướng → Tia Laze</p>
+                      <div class="item-status">Cấp độ: <strong id="weaponLevelText">Cấp 1 (Đạn Thường)</strong></div>
+                    </div>
+                    <button class="buy-btn" id="upgradeWeaponBtn">NÂNG CẤP (120 🪙)</button>
+                  </div>
+                  <div class="upgrade-card">
+                    <div class="item-icon">🛡️</div>
+                    <div class="item-details">
+                      <h4>Khiên Hộ Thể Xuất Phát</h4>
+                      <p>Bắt đầu mỗi màn chơi với một lớp khiên chắn plasma miễn nhiễm đạn.</p>
+                      <div class="item-status">Trạng thái: <strong id="shieldStatusText">Chưa kích hoạt</strong></div>
+                    </div>
+                    <button class="buy-btn" id="buyShieldPermBtn">KÍCH HOẠT (100 🪙)</button>
+                  </div>
+                  <div class="upgrade-card">
+                    <div class="item-icon">🚀</div>
+                    <div class="item-details">
+                      <h4>Turbine Phản Lực Siêu Âm</h4>
+                      <p>Tăng 25% tốc độ lượn cánh và bắn nhanh hơn 20%.</p>
+                      <div class="item-status">Cấp độ: <strong id="engineLevelText">Cấp 0/3</strong></div>
+                    </div>
+                    <button class="buy-btn" id="upgradeEngineBtn">NÂNG CẤP (150 🪙)</button>
+                  </div>
+                </div>
+              </div>
+            </section>
+          </div>
+
+          <div class="lobby-footer">
+            <button id="startButton" class="deploy-btn">BẮT ĐẦU</button>
           </div>
         </div>
 
-        <!-- TABS NAVIGATION -->
-        <div class="lobby-tabs">
-          <button class="tab-btn active" id="tabCampaignBtn">CHIẾN DỊCH (MÀN CHƠI)</button>
-          <button class="tab-btn" id="tabHangarBtn">NHÀ KHO & NÂNG CẤP</button>
-        </div>
-
-        <!-- TAB CONTENT 1: CAMPAIGN / MÀN CHƠI -->
-        <div class="tab-content" id="tabCampaignContent">
-          <div class="stage-grid">
-            <!-- Stage 1 -->
-            <div class="stage-card selected" data-stage="1" id="stageCard1">
-              <div class="stage-thumb stage-1-thumb">
-                <span class="stage-badge">MÀN 1</span>
-              </div>
-              <div class="stage-info">
-                <h3>Căn Cứ Ngoại Ô</h3>
-                <p class="stage-desc">Bầu trời bình minh. Đội trinh sát cơ địch tiến công.</p>
-                <div class="stage-meta">
-                  <span>Mục tiêu: <strong>15 Máy bay</strong></span>
-                  <span class="tag-easy">ĐỘ KHÓ: DỄ</span>
-                </div>
-              </div>
+        <div class="stage-select-view" id="stageSelectView" hidden>
+          <div class="stage-select-header">
+            <button id="backToLobbyButton" class="sec-btn">← VỀ SẢNH</button>
+            <div>
+              <p class="eyebrow">CHỌN ĐIỂM ĐẾN</p>
+              <h2>CHỌN MÀN</h2>
             </div>
-
-            <!-- Stage 2 -->
-            <div class="stage-card" data-stage="2" id="stageCard2">
-              <div class="stage-thumb stage-2-thumb">
-                <span class="stage-badge">MÀN 2</span>
-                <span class="lock-overlay" id="lockStage2" hidden>🔒</span>
+            <span class="wallet-chip">⭐ <strong id="lobbyTotalStars">0/60</strong></span>
+          </div>
+          <div class="tab-content" id="tabCampaignContent">
+            <div class="campaign-container">
+              <div class="map-filter-bar" id="mapFilterBar">
+                <button class="map-filter-btn active" data-map="all">TẤT CẢ (15 MÀN)</button>
+                <button class="map-filter-btn" data-map="1">MAP 1: BÌNH MINH (⭐ 1-5)</button>
+                <button class="map-filter-btn" data-map="2">MAP 2: HOÀNG HÔN (⭐⭐ 6-10)</button>
+                <button class="map-filter-btn" data-map="3">MAP 3: BÃO TUYẾT (⭐⭐⭐ 11-15)</button>
               </div>
-              <div class="stage-info">
-                <h3>Hẻm Núi Hoàng Hôn</h3>
-                <p class="stage-desc">Hoàng hôn rực lửa. Đội cường kích bọc thép bắn trả ác liệt!</p>
-                <div class="stage-meta">
-                  <span>Mục tiêu: <strong>25 Máy bay</strong></span>
-                  <span class="tag-med">ĐỘ KHÓ: VỪA</span>
-                </div>
-              </div>
-            </div>
-
-            <!-- Stage 3 -->
-            <div class="stage-card" data-stage="3" id="stageCard3">
-              <div class="stage-thumb stage-3-thumb">
-                <span class="stage-badge">MÀN 3</span>
-                <span class="lock-overlay" id="lockStage3" hidden>🔒</span>
-              </div>
-              <div class="stage-info">
-                <h3>Pháo Đài Bão Đêm</h3>
-                <p class="stage-desc">Đêm giông bão. Tiêu diệt Siêu Pháo Đài Bay TITAN BOSS!</p>
-                <div class="stage-meta">
-                  <span>Mục tiêu: <strong>DIỆT TRÙM TITAN</strong></span>
-                  <span class="tag-hard">BOSS CỰC KHÓ</span>
-                </div>
+              <div class="stage-scroll-container">
+                <div class="stage-grid" id="stageGrid"></div>
               </div>
             </div>
           </div>
-        </div>
-
-        <!-- TAB CONTENT 2: HANGAR & NÂNG CẤP -->
-        <div class="tab-content" id="tabHangarContent" hidden>
-          <div class="upgrade-grid">
-            <!-- Item 1: Xu Hồi Sinh -->
-            <div class="upgrade-card">
-              <div class="item-icon">🪙+</div>
-              <div class="item-details">
-                <h4>Xu Hồi Sinh Tức Thì</h4>
-                <p>Tự động hồi sinh tại chỗ khi hết mạng, kèm 3 giây khiên bất tử!</p>
-                <div class="item-status">Đang có: <strong id="itemReviveCount">1</strong> (Tối đa 3)</div>
-              </div>
-              <button class="buy-btn" id="buyReviveBtn">MUA (80 🪙)</button>
-            </div>
-
-            <!-- Item 2: Cấp độ Tia Đạn -->
-            <div class="upgrade-card">
-              <div class="item-icon">⚡</div>
-              <div class="item-details">
-                <h4>Nâng Cấp Hỏa Lực</h4>
-                <p id="weaponUpgradeDesc">Đạn Trứng Đôi $\rightarrow$ Đạn Chùm 3 Hướng $\rightarrow$ Tia Laze</p>
-                <div class="item-status">Cấp độ: <strong id="weaponLevelText">Cấp 1 (Đạn Thường)</strong></div>
-              </div>
-              <button class="buy-btn" id="upgradeWeaponBtn">NÂNG CẤP (120 🪙)</button>
-            </div>
-
-            <!-- Item 3: Khiên Năng Lượng Khởi Đầu -->
-            <div class="upgrade-card">
-              <div class="item-icon">🛡️</div>
-              <div class="item-details">
-                <h4>Khiên Hộ Thể Xuất Phát</h4>
-                <p>Bắt đầu mỗi màn chơi với một lớp khiên chắn plasma miễn nhiễm đạn.</p>
-                <div class="item-status">Trạng thái: <strong id="shieldStatusText">Chưa kích hoạt</strong></div>
-              </div>
-              <button class="buy-btn" id="buyShieldPermBtn">KÍCH HOẠT (100 🪙)</button>
-            </div>
-
-            <!-- Item 4: Động Cơ Tên Lửa -->
-            <div class="upgrade-card">
-              <div class="item-icon">🚀</div>
-              <div class="item-details">
-                <h4>Turbine Phản Lực Siêu Âm</h4>
-                <p>Tăng 25% tốc độ lượn cánh và bắn nhanh hơn 20%.</p>
-                <div class="item-status">Cấp độ: <strong id="engineLevelText">Cấp 0/3</strong></div>
-              </div>
-              <button class="buy-btn" id="upgradeEngineBtn">NÂNG CẤP (150 🪙)</button>
-            </div>
-          </div>
-        </div>
-
-        <!-- FOOTER ACTIONS -->
-        <div class="lobby-footer">
-          <button id="startButton" class="deploy-btn">XUẤT KÍCH (BAY NGAY)</button>
-          <div class="controls-hint">
-            <span>← → / A D: DI CHUYỂN</span>
-            <span>SPACE: BẮN TRỨNG</span>
-            <span>P / ESC: TẠM DỪNG</span>
+          <div class="stage-select-actions">
+            <button id="deploySelectedButton" class="deploy-btn">XUẤT KÍCH MÀN 1</button>
           </div>
         </div>
       </section>
@@ -187,7 +156,8 @@
       <section class="game-over victory-panel" id="victoryPanel" hidden>
         <p class="eyebrow">CHIẾN THẮNG BẦU TRỜI</p>
         <h2 class="victory-title">HOÀN THÀNH MÀN!</h2>
-        <div class="victory-stars">⭐⭐⭐</div>
+        <div class="victory-stars" id="victoryStars">⭐⭐⭐</div>
+        <p class="victory-star-desc" id="victoryStarDesc">3/3 SAO - CHIẾN CÔNG XUẤT SẮC!</p>
         <p class="reward-text">Thưởng hoàn thành: <strong id="clearRewardCoins">+50 🪙</strong></p>
         <p>Điểm số màn: <strong id="victoryScore">0</strong></p>
         <div class="panel-actions">
@@ -219,6 +189,6 @@
         <button id="shootButton" aria-label="Bắn">●</button>
       </div>
     </main>
-    <script src="game.js"></script>
+    <script src="game.js?v=3"></script>
   </body>
 </html>
