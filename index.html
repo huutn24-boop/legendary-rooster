@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Legendary Rooster - Không Chiến Huyền Thoại</title>
-    <link rel="stylesheet" href="style.css?v=2" />
+    <link rel="stylesheet" href="style.css?v=3" />
   </head>
   <body>
     <main class="game-shell">
@@ -64,6 +64,10 @@
                   <p class="eyebrow">TRANG BỊ PHI ĐỘI</p>
                   <h2 id="storeTitle">CỬA HÀNG</h2>
                 </div>
+                <div class="store-tabs">
+                  <button type="button" class="store-tab-btn active" id="tabUpgradesBtn">🛠 NÂNG CẤP</button>
+                  <button type="button" class="store-tab-btn" id="tabSkinsBtn">🐔 SKIN GÀ</button>
+                </div>
                 <span class="store-currency">🪙 <strong id="shopGold">0</strong></span>
               </div>
               <div class="tab-content shop-content" id="tabHangarContent">
@@ -104,6 +108,11 @@
                     </div>
                     <button class="buy-btn" id="upgradeEngineBtn">NÂNG CẤP (150 🪙)</button>
                   </div>
+                </div>
+              </div>
+              <div class="tab-content shop-content" id="tabSkinsContent" hidden>
+                <div class="upgrade-grid skins-grid" id="skinsGrid">
+                  <!-- Rendered dynamically by game.js -->
                 </div>
               </div>
             </section>

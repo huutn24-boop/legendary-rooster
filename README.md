@@ -2,11 +2,16 @@
 
 Game bắn máy bay theo phong cách arcade, xây dựng bằng HTML5 Canvas, JavaScript và CSS. Người chơi điều khiển một chiến kê “rooster” mạnh mẽ, bắn trứng phá hủy máy bay địch, tích lũy vàng, nâng cấp vũ khí và vượt qua nhiều màn chơi khác nhau.
 
+## Chơi trực tuyến
+
+- Website: https://huutn24-boop.github.io/legendary-rooster/
+
 ## Tính năng chính
 
-- 3 màn chơi với độ khó tăng dần
+- 15 màn chơi với độ khó tăng dần
 - Hệ thống thu thập vàng và xu hồi sinh
 - Cửa hàng nâng cấp: vũ khí, khiên, động cơ, xu hồi sinh
+- 5 skin gà trống có thể mở khóa và lựa chọn
 - Màn boss ở giai đoạn cuối
 - Điều khiển bằng bàn phím và cảm ứng di động
 - Lưu tiến độ bằng localStorage
